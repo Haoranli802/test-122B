@@ -69,15 +69,17 @@ def main() -> None:
                     break
                 index = get_the_minimum_index(action)
                 currentAction = action[index]
-                nextPlace = currentAction.place + 1 if currentAction.place + 1 <= deviceCount else 1
-                previousPlace = currentAction.place - 1 if currentAction.place - 1 > 0 else deviceCount
+                nextPlace = propagateTime[action[index].place][0]
+                for key in propagateTime.keys():
+                    if propagateTime[key][0] == action[index].place:
+                        previousPlace = key
                 if currentAction.actionCount == 0:
                     print(
                         f"@{currentAction.time} #{currentAction.place}: SENT {currentAction.actionType} TO #{nextPlace}: {currentAction.name}")
-                    action[index].time += propagateTime[action[index].place]
+                    action[index].time += propagateTime[action[index].place][1]
                     action[index].actionCount += 1
-                    action[index].place = nextPlace
-                elif currentAction.actionCount >= deviceCount:
+                    action[index].place = propagateTime[action[index].place][0]
+                elif currentAction.actionCount >= len(propagateTime.keys()):
                     print(
                         f"@{currentAction.time} #{currentAction.place}: RECEIVED {currentAction.actionType} FROM #{previousPlace}: {currentAction.name}")
                     action.remove(currentAction)
@@ -86,9 +88,9 @@ def main() -> None:
                         f"@{currentAction.time} #{currentAction.place}: RECEIVED {currentAction.actionType} FROM #{previousPlace}: {currentAction.name}")
                     print(
                         f"@{currentAction.time} #{currentAction.place}: SENT {currentAction.actionType} TO #{nextPlace}: {currentAction.name}")
-                    action[index].time += propagateTime[action[index].place]
+                    action[index].time += propagateTime[action[index].place][1]
                     action[index].actionCount += 1
-                    action[index].place = nextPlace
+                    action[index].place = propagateTime[action[index].place][0]
     except FileNotFoundError as e:
         print("FILE NOT FOUND")
 
